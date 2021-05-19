@@ -1,0 +1,21 @@
+# all target dirs
+target/
+build/
+out/
+bin/
+
+# IntelliJ.
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Eclipse
+.settings/
+.project
+.classpath
+
+# gradle
+.gradle/
+!gradle-wrapper.jar
+!gradle-wrapper.properties
