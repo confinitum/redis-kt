@@ -2,7 +2,21 @@ package com.confinitum.common.redis.commands
 
 import com.confinitum.common.redis.*
 import kotlinx.coroutines.channels.*
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.util.*
+
+
+/**
+ * Copy a key
+ *
+ * https://redis.io/commands/copy
+ *
+ * @since 6.2.0
+ */
+suspend fun Redis.copy(src: String, dest: String): Long {
+    TODO("implement")
+}
 
 /**
  * Delete a key
@@ -12,20 +26,6 @@ import java.util.*
  * @since 1.0.0
  */
 suspend fun Redis.del(vararg keys: String): Long = executeTyped("DEL", *keys)
-
-/**
- * This command is very similar to DEL: it removes the specified keys.
- * Just like DEL a key is ignored if it does not exist.
- * However the command performs the actual memory reclaiming in a different thread,
- * so it is not blocking, while DEL is.
- * This is where the command name comes from: the command just unlinks the keys from the keyspace.
- * The actual removal will happen later asynchronously.
- *
- * https://redis.io/commands/unlink
- *
- * @since 4.0.0
- */
-suspend fun Redis.unlink(vararg keys: String): Long = executeTyped("UNLINK", *keys)
 
 /**
  * Return a serialized version of the value stored at the specified key.
@@ -74,7 +74,7 @@ suspend fun Redis.exists(vararg keys: String): Long = executeTyped("EXISTS", *ke
  *
  * @since 1.0.0
  */
-suspend fun Redis.expire(key: String, time: Int) = executeTypedNull<String>("EXPIRE", key, "$time")
+suspend fun Redis.expire(key: String, time: Int) = executeTypedNull<String>("EXPIRE", key, time)
 
 /**
  * Set the expiration for a key as a UNIX timestamp
@@ -83,7 +83,8 @@ suspend fun Redis.expire(key: String, time: Int) = executeTypedNull<String>("EXP
  *
  * @since 1.2.0
  */
-suspend fun Redis.expireat(key: String, date: Date) = executeTypedNull<String>("EXPIREAT", key, "${date.time / 1000L}")
+suspend fun Redis.expireat(key: String, date: LocalDateTime) =
+    executeTypedNull<String>("EXPIREAT", key, date.toEpochSecond(ZoneOffset.UTC))
 
 /**
  * Find all keys matching the given pattern
@@ -92,6 +93,10 @@ suspend fun Redis.expireat(key: String, date: Date) = executeTypedNull<String>("
  *
  * @since 1.0.0
  */
+@Deprecated(
+    message = "Use scan instead",
+    replaceWith = ReplaceWith("scan(pattern)")
+)
 suspend fun Redis.keys(pattern: String) = executeArrayString("KEYS", pattern)
 
 /**
@@ -101,7 +106,9 @@ suspend fun Redis.keys(pattern: String) = executeArrayString("KEYS", pattern)
  *
  * @since 2.6.0
  */
-suspend fun Redis.migrate(host: String, port: Int, vararg keys: String, destinationDb: Int = 0, timeoutMs: Int = 0, copy: Boolean = false, replace: Boolean = false) {
+suspend fun Redis.migrate(host: String, port: Int,
+                          vararg keys: String,
+                          destinationDb: Int = 0, timeoutMs: Int = 0, copy: Boolean = false, replace: Boolean = false) {
     check(keys.isNotEmpty()) { "Keys must not be empty" }
 
     executeTyped<Unit>(arrayListOf<Any?>().apply {
@@ -206,7 +213,7 @@ suspend fun Redis.pexpire(key: String, ms: Long) = executeTypedNull<String>("PEX
  *
  * @since 2.6.0
  */
-suspend fun Redis.pexpireat(key: String, date: Date) = executeTypedNull<String>("PEXPIREAT", key, "${date.time}")
+suspend fun Redis.pexpireat(key: String, date: Date) = executeTypedNull<String>("PEXPIREAT", key, date.time)
 
 /**
  * This commands returns the remaining time in milliseconds to live of a key that has an expire set.
@@ -284,6 +291,7 @@ data class RedisSortResult(val count: Long, val items: List<String>?)
  * @since 1.0.0
  */
 // SORT key [BY pattern] [LIMIT offset count] [GET pattern [GET pattern ...]] [ASC|DESC] [ALPHA] [STORE destination]
+//TODO reimplement with config builder
 suspend fun Redis.sort(
     key: String, pattern: String? = null,
     range: LongRange? = null,
@@ -298,7 +306,7 @@ suspend fun Redis.sort(
             add(pattern)
         }
         if (range != null) {
-            val count = range.endInclusive - range.start + 1
+            val count = range.endInclusive - range.start
             add("LIMIT")
             add(range.start)
             add(count)
@@ -344,6 +352,20 @@ suspend fun Redis.touch(vararg keys: String): Long = executeTyped("TOUCH", *keys
  * @since 1.0.0
  */
 suspend fun Redis.type(key: String): String? = executeTypedNull<String>("TYPE", key)
+
+/**
+ * This command is very similar to DEL: it removes the specified keys.
+ * Just like DEL a key is ignored if it does not exist.
+ * However the command performs the actual memory reclaiming in a different thread,
+ * so it is not blocking, while DEL is.
+ * This is where the command name comes from: the command just unlinks the keys from the keyspace.
+ * The actual removal will happen later asynchronously.
+ *
+ * https://redis.io/commands/unlink
+ *
+ * @since 4.0.0
+ */
+suspend fun Redis.unlink(vararg keys: String): Long = executeTyped("UNLINK", *keys)
 
 /**
  * This command blocks the current client until all the previous write commands are successfully

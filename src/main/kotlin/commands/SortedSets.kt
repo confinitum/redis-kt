@@ -24,7 +24,7 @@ suspend fun Redis.bzpopmax(vararg keys: String, timeout: Long = 0): RedisBzPopRe
  * @since 5.0.0
  */
 suspend fun Redis.bzpopmin(vararg keys: String, timeout: Long = 0): RedisBzPopResult? {
-    val parts = executeArrayString("BZPOPMAX", *keys, timeout)
+    val parts = executeArrayString("BZPOPMIN", *keys, timeout)
     return if (parts.size >= 3) RedisBzPopResult(
         parts[0],
         parts[2],
@@ -66,6 +66,52 @@ suspend fun Redis.zadd(key: String, scores: Map<String, Double>): Long =
  * @since 1.2.0
  */
 suspend fun Redis.zadd(key: String, member: String, score: Double): Long = executeTyped("ZADD", key, score, member)
+
+
+class ZAddBuilder {
+
+    var lt: Boolean = false
+    var gt: Boolean = false
+    var xx = false
+    var nx = false
+    var ch = false
+    var incr = false
+    var scores = mutableMapOf<String, Double>()
+
+    fun score(member: String, score: Double) {
+        scores.put(member, score)
+    }
+
+    fun build(): List<Any> {
+        val args = mutableListOf<Any>()
+        if (xx) args.add("XX")
+        if (nx) args.add("NX")
+        if (lt) args.add("LT")
+        if (gt) args.add("GT")
+        if (ch) args.add("CH")
+        if (incr) args.add("INCR")
+
+        scores.forEach {
+            args.add(it.value)
+            args.add(it.key)
+        }
+
+        return args
+    }
+}
+/**
+ * Conditionally add one or more members to a sorted set, or update its score if it already exists
+ *
+ * https://redis.io/commands/zadd
+ *
+ * @since 3.0.2
+ */
+suspend fun Redis.zadd(key: String, options: ZAddBuilder.() -> Unit): Long {
+    val builder = ZAddBuilder()
+    options.invoke(builder)
+    val args = builder.build()
+    return executeTyped("ZADD", key, *args.toTypedArray())
+}
 
 /**
  * Get the number of members in a sorted set

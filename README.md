@@ -2,19 +2,12 @@
 
 A Redis Client written in pure Kotlin
 
-Current state: [![Build Status](https://travis-ci.com/confinitum/redis-client.svg)](https://travis-ci.com/confinitum/redis-client)
+Current state: work in progress [![Build Status](https://travis-ci.com/confinitum/redis-client.svg)](https://travis-ci.com/confinitum/redis-client)
 
-## Features
+## About
+A Redis client written in pure Kotlin.
 
-* TODO
+Being in alpha state, this client is not ready for production yet. 
 
-## Requirements
-
-* [Kotlin 1.4+](https://kotlinlang.org/)
-
-## Developer Info
-
-* Kotlin & Java target is Java 11
-* JUnit5 
-* Tests running on classpath ignoring javas module system
+This library is build upon [ktor-client-redis](https://github.com/ktorio/ktor-clients/tree/main/ktor-client-redis).
 

@@ -49,6 +49,15 @@ suspend fun Redis.sismember(key: String, member: String): Boolean = executeTyped
 suspend fun Redis.smembers(key: String): Set<String> = executeArrayString("SMEMBERS", key).toSet()
 
 /**
+ * Determine if given values are member of a set
+ *
+ * https://redis.io/commands/sismember
+ *
+ * @since 6.2.0
+ */
+suspend fun Redis.smismember(key: String, vararg keys: String): List<Long> = executeArrayLong("SMISMEMBER", key, *keys)
+
+/**
  * Subtract multiple sets
  *
  * Returns the members of the set resulting from the difference between the first set and all the successive sets.

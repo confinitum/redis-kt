@@ -10,7 +10,7 @@ class RedisClientMock: Redis {
         return this
     }
     override val context: Job
-        get() = TODO("Not yet implemented")
+        get() = Job()
 
     override suspend fun execute(vararg args: Any?): Any? {
         return executor.invoke(args)

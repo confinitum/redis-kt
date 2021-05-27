@@ -16,9 +16,9 @@ val kotlinx_coroutines: String by project
 val dokka_version: String by project
 val ktor_version: String by project
 val junit5_version: String by project
+val kotest_version: String by project
 val hamcrest_version: String by project
 val logback_version: String by project
-val kotest_version = "4.6.0"
 
 group = "com.confinitum.common"
 version = my_version
@@ -36,7 +36,6 @@ repositories {
 
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlin_version}")
-//    implementation("org.jetbrains.kotlin:kotlin-reflect:${kotlin_version}")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinx_coroutines")
     implementation("io.ktor:ktor-network:$ktor_version")
 }

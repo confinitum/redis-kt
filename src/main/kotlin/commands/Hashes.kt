@@ -61,7 +61,7 @@ suspend fun Redis.hgetall(key: String): Map<String, String> = executeArrayString
  * @since 2.0.0
  */
 suspend fun Redis.hincrby(key: String, field: String, increment: Long): Long =
-    executeTyped("HINCRBY", key, field, "$increment")
+    executeTyped("HINCRBY", key, field, increment)
 
 /**
  * Increment the float value of a hash field by the given amount
@@ -71,7 +71,7 @@ suspend fun Redis.hincrby(key: String, field: String, increment: Long): Long =
  * @since 2.0.0
  */
 suspend fun Redis.hincrbyfloat(key: String, field: String, increment: Double): Double =
-    executeTyped("HINCRBYFLOAT", key, field, "$increment")
+    executeTyped("HINCRBYFLOAT", key, field, increment)
 
 /**
  * Get all the fields in a hash
@@ -122,25 +122,26 @@ suspend fun Redis.hmset(key: String, vararg pairs: Pair<String, String>) = if (p
  */
 suspend fun Redis.hmset(key: String, map: Map<String, String>) = hmset(key, *map.map { it.key to it.value }.toTypedArray())
 
-/**
- * Set the string value of a hash field
- *
- * https://redis.io/commands/hset
- *
- * @since 2.0.0
- */
-suspend fun Redis.hset(key: String, field: String, value: String): Boolean = executeTyped("HSET", key, field, value)
+
+suspend fun Redis.hrandfield(key: String): String? {
+    TODO("implement")
+}
+
+suspend fun Redis.hrandfield(key: String, count: Long, withValues: Boolean = false): String? {
+    TODO("implement")
+}
 
 /**
- * Set the string value of a hash field
+ * Incrementally iterate hash fields and associated values
  *
- * https://redis.io/commands/hset
+ * https://redis.io/commands/hscan
  *
- * @since 2.0.0
+ * @since 2.8.0
  */
-suspend fun Redis.hset(key: String, vararg pairs: Pair<String, String>): Int {
-    return pairs.map { hset(key, it.first, it.second) }.count { it }
-}
+suspend fun Redis.hscan(key: String, pattern: String? = null): ReceiveChannel<Pair<String, String>> =
+    _scanBasePairs("HSCAN", key, pattern)
+
+suspend fun Redis.hset(key: String, field: String, value: String): Boolean = executeTyped("HSET", key, field, value)
 
 /**
  * Set the value of a hash field, only if the field does not exist
@@ -168,13 +169,3 @@ suspend fun Redis.hstrlen(key: String, field: String): Long = executeTyped("HSTR
  * @since 2.0.0
  */
 suspend fun Redis.hvals(key: String): Set<String> = executeArrayString("HVALS", key).toSet()
-
-/**
- * Incrementally iterate hash fields and associated values
- *
- * https://redis.io/commands/hscan
- *
- * @since 2.8.0
- */
-suspend fun Redis.hscan(key: String, pattern: String? = null): ReceiveChannel<Pair<String, String>> =
-    _scanBasePairs("HSCAN", key, pattern)

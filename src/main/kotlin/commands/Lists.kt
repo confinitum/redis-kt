@@ -39,6 +39,20 @@ package com.confinitum.common.redis.commands
 
 import com.confinitum.common.redis.*
 
+enum class MovePosition{
+    LEFT, RIGHT
+}
+
+/**
+ * Get src element from head/tail, remove it, push into dst at head/tail
+ *
+ * https://redis.io/commands/lmove
+ *
+ * @since 6.2.0
+ */
+suspend fun Redis.blmove(src: String, dst: String, srcPos: MovePosition, dstPos: MovePosition, timeout: Int = 0): String? =
+    executeTypedNull<String>("BLMOVE", src, dst, srcPos.name, dstPos.name, timeout)
+
 /**
  * Remove and get the first element in a list, or block until one is available
  *
@@ -133,6 +147,16 @@ suspend fun Redis.linsertAfter(key: String, pivot: String, value: Any?): Long = 
 suspend fun Redis.llen(key: String): Long = executeTyped("LLEN", key)
 
 /**
+ * Get src element from head/tail, remove it, push into dst at head/tail
+ *
+ * https://redis.io/commands/lmove
+ *
+ * @since 6.2.0
+ */
+suspend fun Redis.lmove(src: String, dst: String, srcPos: MovePosition, dstPos: MovePosition): String? =
+    executeTypedNull<String>("LMOVE", src, dst, srcPos.name, dstPos.name)
+
+/**
  * Remove and get the first element in a list
  *
  * https://redis.io/commands/lpop
@@ -140,6 +164,43 @@ suspend fun Redis.llen(key: String): Long = executeTyped("LLEN", key)
  * @since 1.0.0
  */
 suspend fun Redis.lpop(key: String): String? = executeTypedNull<String>("LPOP", key)
+
+/**
+ * get index of matching elements
+ *
+ * https://redis.io/commands/lpos
+ *
+ * @since 6.0.6
+ */
+suspend fun Redis.lpos(key: String, arg: String, options: LPosOptions.() -> Unit = { -> Unit}): List<Long> {
+    val opts = LPosOptions()
+    options.invoke(opts)
+    if (opts.simpleReturn()) {
+        return executeTypedNull<Long>("LPOS", key, arg, *opts.build())?.let {
+            listOf(it)
+        } ?: emptyList()
+    } else {
+        return executeArrayLong("LPOS", key, arg, *opts.build())
+    }
+}
+
+class LPosOptions {
+    private var rank: Int = 0
+    private var count: Int? = null
+    fun rank(pos: Int) {
+        rank = pos
+    }
+    fun count(value: Int) {
+        count = value
+    }
+    internal fun build(): Array<Any> {
+        var opts = listOf<Any>()
+        if (rank != 0) opts += listOf("RANK", rank)
+        if (count != null) opts += listOf("COUNT", count!!)
+        return opts.toTypedArray()
+    }
+    internal fun simpleReturn() = (count == null)
+}
 
 /**
  * Remove and get the last element in a list
