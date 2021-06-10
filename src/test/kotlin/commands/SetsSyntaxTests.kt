@@ -3,11 +3,13 @@ package commands
 import RedisClientMock
 import com.confinitum.common.redis.commands.RedisBzPopResult
 import com.confinitum.common.redis.commands.*
+import io.kotest.core.spec.style.FunSpec
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.datatest.withData
 import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.channels.produce
 
-class SortedSetsSyntaxTest: StringSpec({
+class SetsSyntaxTests: StringSpec({
 
         "set commands" {
             val client = RedisClientMock()
@@ -125,13 +127,9 @@ class SortedSetsSyntaxTest: StringSpec({
                 it shouldBe arrayOf("ZCARD", "key")
                 0
             }.zcard("key")
-            client.onExec {
-                it shouldBe arrayOf("ZCARD", "key")
-                0
-            }.zcount("key")
         }
 
-        " commands" {
+        "x commands" {
             val client = RedisClientMock()
 
             client.onExec {
@@ -141,3 +139,33 @@ class SortedSetsSyntaxTest: StringSpec({
         }
 
     })
+
+class SetPermutationTests : FunSpec({
+    val client = RedisClientMock()
+
+    context("SortedSet commands") {
+        context("zcount") {
+            withData(
+                CountParams(expected = arrayOf("-inf", "+inf")),
+                CountParams(1.1, 2.2, expected = arrayOf("1.1", "2.2")),
+                CountParams(1.1, 2.2, false, expected = arrayOf("(1.1", "2.2")),
+                CountParams(1.1, 2.2, false, false, expected = arrayOf("(1.1", "(2.2")),
+                CountParams(1.1, 2.2, true, false, expected = arrayOf("1.1", "(2.2")),
+                CountParams(includeMin = false, includeMax = false, expected = arrayOf("-inf", "+inf")),
+            ) { m ->
+                client.onExec {
+                    it shouldBe arrayOf("ZCOUNT", "key", *m.expected)
+                    0
+                }.zcount("key", m.min,m.max,m.includeMin,m.includeMax)
+            }
+        }
+    }
+})
+
+data class CountParams(
+    val min: Double = Double.NEGATIVE_INFINITY,
+    val max: Double = Double.POSITIVE_INFINITY,
+    val includeMin: Boolean = true,
+    val includeMax: Boolean = true,
+    val expected: Array<Any?> = emptyArray()
+)

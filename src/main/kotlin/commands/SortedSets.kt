@@ -457,10 +457,9 @@ private fun Double.toRedisString() = when {
     else -> "$this"
 }
 
-private fun Double.toRedisRange(include: Boolean): String {
-    val out = when {
+private fun Double.toRedisRange(include: Boolean): String =
+    when {
         isInfinite() -> if (this >= 0) "+inf" else "-inf"
-        else -> "$this"
+        else -> if (include) "$this" else "($this"
     }
-    return if (include) out else "($out"
-}
+
