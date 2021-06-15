@@ -127,17 +127,11 @@ class SetsSyntaxTests: StringSpec({
                 it shouldBe arrayOf("ZCARD", "key")
                 0
             }.zcard("key")
-        }
-
-        "x commands" {
-            val client = RedisClientMock()
-
             client.onExec {
-                it shouldBe arrayOf("PING")
-                "PONG"
-            }.ping()
+                it shouldBe arrayOf("ZINCRBY", "key", 1.1, "foo")
+                0
+            }.zincrby("key", "foo", 1.1)
         }
-
     })
 
 class SetPermutationTests : FunSpec({

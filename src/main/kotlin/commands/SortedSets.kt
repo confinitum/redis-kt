@@ -137,6 +137,15 @@ suspend fun Redis.zcount(
     includeMax: Boolean = true
 ): Long = executeTyped("ZCOUNT", key, min.toRedisRange(includeMin), max.toRedisRange(includeMax))
 
+suspend fun Redis.zdiff() {
+    TODO("not implemented yet")
+}
+
+suspend fun Redis.zdiffstore() {
+    TODO("not implemented yet")
+}
+
+
 /**
  * Increment the score of a member in a sorted set
  *

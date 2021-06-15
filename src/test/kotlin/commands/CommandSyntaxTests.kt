@@ -463,7 +463,7 @@ class CommandSyntaxTest : StringSpec({
         }.rpushx("foo", "bar")
     }
 
-    " commands" {
+    "! commands" {
         val client = RedisClientMock()
 
         client.onExec {
