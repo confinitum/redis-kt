@@ -18,7 +18,7 @@ stages:
 jobs:
   include:
     - stage: test
-      name: "Tests"
+      name: "Tests only"
       script: ./gradlew check
     - stage: snapshot
       script: echo "snapshot build"
