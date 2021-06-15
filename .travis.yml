@@ -1,0 +1,38 @@
+language: java
+install: true
+
+os: linux
+dist: focal
+jdk: openjdk11
+
+before_install:
+  - chmod +x gradlew
+
+stages:
+  - name: test
+  - name: snapshot
+    if: branch = main AND tag IS blank
+  - name: release
+    if: branch IN (main, master, release) AND tag =~ /^[Vv]{0,1}\d+\.\d+\.\d+.*/
+
+jobs:
+  include:
+    - stage: test
+      name: "Tests"
+      script: ./gradlew check
+    - stage: snapshot
+      script: echo "snapshot build"
+    - stage: release
+      script: echo "release build"
+
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+  - rm -f  $HOME/.gradle/caches/*/fileHashes/fileHashes.bin
+  - rm -f  $HOME/.gradle/caches/*/fileHashes/fileHashes.lock
+
+cache:
+  directories:
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
+    - $HOME/.m2
