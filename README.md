@@ -1,6 +1,6 @@
 # Redis Client for Kotlin
 
-A Redis Client written in pure Kotlin
+A Redis Client written in pure Kotlin.
 
 Current state: work in progress [![Build Status](https://travis-ci.com/confinitum/redis-client.svg)](https://travis-ci.com/confinitum/redis-kt)
 
