@@ -3,7 +3,8 @@
 A Redis Client written in pure Kotlin.
 
 Current state: work in progress 
-[![confinitum](https://circleci.com/gh/confinitum/redis-kt/tree/main.svg?style=svg)](https://circleci.com/gh/confinitum/redis-kt/tree/main)
+
+Build: [![confinitum](https://circleci.com/gh/confinitum/redis-kt/tree/main.svg?style=svg)](https://circleci.com/gh/confinitum/redis-kt/tree/main)
 
 ## About
 A Redis client written in pure Kotlin.
