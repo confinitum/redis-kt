@@ -137,14 +137,6 @@ suspend fun Redis.zcount(
     includeMax: Boolean = true
 ): Long = executeTyped("ZCOUNT", key, min.toRedisRange(includeMin), max.toRedisRange(includeMax))
 
-suspend fun Redis.zdiff() {
-    TODO("not implemented yet")
-}
-
-suspend fun Redis.zdiffstore() {
-    TODO("not implemented yet")
-}
-
 
 /**
  * Increment the score of a member in a sorted set
@@ -165,6 +157,10 @@ suspend fun Redis.zincrby(key: String, member: String, increment: Double) =
  */
 suspend fun Redis.zlexcount(key: String, min: String, max: String): Long = executeTyped("ZLEXCOUNT", key, min, max)
 
+suspend fun Redis.zmscore(key: String, vararg member: String): List<Double?> {
+    TODO("not implemented yet")
+}
+
 /**
  * Removes and returns up to count members with the highest scores in the sorted set stored at key.
  *
@@ -184,6 +180,14 @@ suspend fun Redis.zpopmax(key: String, count: Long = 1): Map<String, Double> =
  */
 suspend fun Redis.zpopmin(key: String, count: Long = 1): Map<String, Double> =
     executeArrayString("ZPOPMIN", key, count).listOfPairsToMap().map { it.value to it.key.toDouble() }.toMap()
+
+
+suspend fun Redis.zrandmember(key: String): String {
+    TODO("not implemented yet")
+}
+suspend fun Redis.zrandmember(key: String, count: Long): Map<String, Double> {
+    TODO("not implemented yet")
+}
 
 /**
  * Return a range of members in a sorted set, by index
@@ -384,31 +388,20 @@ suspend fun Redis.zscan(key: String, pattern: String? = null): Flow<Pair<String,
  */
 suspend fun Redis.zscore(key: String, member: String): Double = executeTyped("ZSCORE", key, member)
 
-/**
- * Intersect multiple sorted sets and store the resulting sorted set in a new key
- *
- * https://redis.io/commands/zinterstore
- *
- * @since 2.0.0
- */
-suspend fun Redis.zinterstore(
-    dest: String,
-    vararg keysWithScores: Pair<String, Double>,
-    aggregate: RedisZBoolStoreAggregate = RedisZBoolStoreAggregate.SUM
-): Long = _zboolstore("ZINTERSTORE", dest, *keysWithScores, aggregate = aggregate)
+suspend fun Redis.zdiff() {
+    TODO("not implemented yet")
+}
 
-/**
- * Add multiple sorted sets and store the resulting sorted set in a new key
- *
- * https://redis.io/commands/zunionstore
- *
- * @since 2.0.0
- */
-suspend fun Redis.zunionstore(
-    dest: String,
+suspend fun Redis.zdiffstore() {
+    TODO("not implemented yet")
+}
+
+suspend fun Redis.zinter(
     vararg keysWithScores: Pair<String, Double>,
     aggregate: RedisZBoolStoreAggregate = RedisZBoolStoreAggregate.SUM
-): Long = _zboolstore("ZUNIONSTORE", dest, *keysWithScores, aggregate = aggregate)
+): Map<String, Double> {
+    TODO("not implemented yet")
+}
 
 /**
  * Intersect multiple sorted sets and store the resulting sorted set in a new key
@@ -424,6 +417,23 @@ suspend fun Redis.zinterstore(
 ): Long = _zboolstore("ZINTERSTORE", dest, *keys.map { it to 1.0 }.toTypedArray(), aggregate = aggregate)
 
 /**
+ * Intersect multiple sorted sets and store the resulting sorted set in a new key
+ *
+ * https://redis.io/commands/zinterstore
+ *
+ * @since 2.0.0
+ */
+suspend fun Redis.zinterstore(
+    dest: String,
+    vararg keysWithScores: Pair<String, Double>,
+    aggregate: RedisZBoolStoreAggregate = RedisZBoolStoreAggregate.SUM
+): Long = _zboolstore("ZINTERSTORE", dest, *keysWithScores, aggregate = aggregate)
+
+suspend fun Redis.zunion() {
+    TODO("not implemented yet")
+}
+
+/**
  * Add multiple sorted sets and store the resulting sorted set in a new key
  *
  * https://redis.io/commands/zunionstore
@@ -435,6 +445,19 @@ suspend fun Redis.zunionstore(
     vararg keys: String,
     aggregate: RedisZBoolStoreAggregate = RedisZBoolStoreAggregate.SUM
 ): Long = _zboolstore("ZUNIONSTORE", dest, *keys.map { it to 1.0 }.toTypedArray(), aggregate = aggregate)
+
+/**
+ * Add multiple sorted sets and store the resulting sorted set in a new key
+ *
+ * https://redis.io/commands/zunionstore
+ *
+ * @since 2.0.0
+ */
+suspend fun Redis.zunionstore(
+    dest: String,
+    vararg keysWithScores: Pair<String, Double>,
+    aggregate: RedisZBoolStoreAggregate = RedisZBoolStoreAggregate.SUM
+): Long = _zboolstore("ZUNIONSTORE", dest, *keysWithScores, aggregate = aggregate)
 
 enum class RedisZBoolStoreAggregate {
     SUM, MIN, MAX

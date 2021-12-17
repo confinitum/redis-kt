@@ -131,6 +131,26 @@ class SetsSyntaxTests: StringSpec({
                 it shouldBe arrayOf("ZINCRBY", "key", 1.1, "foo")
                 0
             }.zincrby("key", "foo", 1.1)
+            client.onExec {
+                it shouldBe arrayOf("ZLEXCOUNT", "key", "-", "+")
+                0
+            }.zlexcount("key", "-", "+")
+            client.onExec {
+                it shouldBe arrayOf("ZPOPMAX", "key", 1)
+                mapOf<String, Double>()
+            }.zpopmax("key")
+            client.onExec {
+                it shouldBe arrayOf("ZPOPMAX", "key", 2)
+                mapOf<String, Double>()
+            }.zpopmax("key", 2)
+            client.onExec {
+                it shouldBe arrayOf("ZPOPMIN", "key", 1)
+                mapOf<String, Double>()
+            }.zpopmin("key")
+            client.onExec {
+                it shouldBe arrayOf("ZPOPMIN", "key", 2)
+                mapOf<String, Double>()
+            }.zpopmin("key", 2)
         }
     })
 
